@@ -433,6 +433,8 @@ int main()
     }
     return 0;
 }
+
+
 /*
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
     {
