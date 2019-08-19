@@ -388,14 +388,9 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
     plik_kontaktow.close ();
 }
 
-int main()
+void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
 {
-    while(true)
-    {
-        vector <kontakt> lista_kontaktow;
-        wczytaj_kontakty_z_pliku(lista_kontaktow);
         int wybor_menu_glownego;
-
         system("cls");
         cout << "Ksiazka adresowa" << endl;
         cout << "___________________________________" << endl;
@@ -430,6 +425,15 @@ int main()
             usun_kontakt(lista_kontaktow);
         if (wybor_menu_glownego == 9)
             exit (0);
+}
+
+int main()
+{
+    while(true)
+    {
+        vector <kontakt> lista_kontaktow;
+        wczytaj_kontakty_z_pliku(lista_kontaktow);
+        pokaz_menu_glowne(lista_kontaktow);
     }
     return 0;
 }
