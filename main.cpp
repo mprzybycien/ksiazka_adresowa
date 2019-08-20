@@ -444,4 +444,9 @@ int main()
         cout << p -> id << "; " << p -> imie << "; " << p -> nazwisko << "; "<< p -> adres << "; "<< p -> nr_tel << "; "<< p -> email << endl;
     }
     system ("pause");
-    */
+*/
+
+/*
+http://cpp0x.pl/dokumentacja/standard-C/remove/318
+http://cpp0x.pl/dokumentacja/standard-C/rename/211
+*/
