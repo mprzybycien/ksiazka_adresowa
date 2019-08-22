@@ -15,6 +15,13 @@ struct kontakt
     string email;
 };
 
+struct uzytkownik
+{
+    int id;
+    string nazwa;
+    string haslo;
+};
+
 void dodaj_kontakt (vector <kontakt> lista_kontaktow)
 {
     int id;
@@ -390,6 +397,9 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 
 void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
 {
+    wczytaj_kontakty_z_pliku(lista_kontaktow);
+    while(true)
+    {
         int wybor_menu_glownego;
         system("cls");
         cout << "Ksiazka adresowa" << endl;
@@ -425,18 +435,204 @@ void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
             usun_kontakt(lista_kontaktow);
         if (wybor_menu_glownego == 9)
             exit (0);
+    }
+}
+
+void wczytaj_uzytkownikow_z_pliku(vector <uzytkownik> &lista_uzytkownikow)
+{
+    fstream plik_uzytkownikow;
+    string linia_tekstu_w_pliku;
+    string tekst_tymczasowy;
+    int licznik_kresek = 0;
+    int dlugosc;
+    char znak;
+
+    plik_uzytkownikow.open("plik_uzytkownikow.txt", ios::in);
+
+    while(getline(plik_uzytkownikow,linia_tekstu_w_pliku))
+    {
+        uzytkownik osoba;
+        dlugosc = linia_tekstu_w_pliku.length();
+
+        for (int i = 0; i < dlugosc; i++)
+        {
+            znak = linia_tekstu_w_pliku[i];
+            if (znak != '|')
+            {
+                tekst_tymczasowy += znak;
+            }
+            else
+            {
+                licznik_kresek++;
+                switch (licznik_kresek)
+                {
+                case 1:
+                    osoba.id = atoi(tekst_tymczasowy.c_str());
+                    tekst_tymczasowy = "";
+                    break;
+                case 2:
+                    osoba.nazwa = tekst_tymczasowy;
+                    tekst_tymczasowy = "";
+                    break;
+                case 3:
+                    osoba.haslo = tekst_tymczasowy;
+                    tekst_tymczasowy = "";
+                    break;
+                }
+            }
+        }
+        licznik_kresek = 0;
+        lista_uzytkownikow.push_back(osoba);
+    }
+    plik_uzytkownikow.close ();
+}
+
+void utworz_nowe_konto (vector <uzytkownik> &lista_uzytkownikow)
+{
+    int id;
+    string nazwa;
+    string haslo, haslo2;
+
+    if (lista_uzytkownikow.size()==0)
+    {
+        id = 1;
+    }
+    else
+    {
+        vector<uzytkownik>::iterator  itr = lista_uzytkownikow.end() - 1;
+        id = (itr -> id) + 1;
+    }
+
+    system("cls");
+
+    cout << "Kreastor konta nowego uzytkownika." << endl;
+    cout << "___________________________________________" << endl;
+    cout << "Podaj nazwe nowego uzytkownika: ";
+    cin.sync();
+    getline(cin, nazwa);
+
+    while(true)
+    {
+        cout << "Wpisz haslo: ";
+        cin.sync();
+        getline(cin, haslo);
+
+        cout << "Potwierdz haslo: ";
+        cin.sync();
+        getline(cin, haslo2);
+        if (haslo==haslo2)
+            break;
+        else
+            cout << endl << "Niezgodne haslo!" <<endl;
+    }
+
+    fstream plik_uzytkownikow;
+    plik_uzytkownikow.open("plik_uzytkownikow.txt", ios::out | ios::app);
+
+    plik_uzytkownikow << id << "|";
+    plik_uzytkownikow << nazwa << "|";
+    plik_uzytkownikow << haslo << "|";
+    plik_uzytkownikow << endl;
+
+    plik_uzytkownikow.close();
+
+    cout << "___________________________________________" << endl;
+    cout << "Uzytkownik zapisany poprawnie!" << endl;
+    system("pause");
+}
+
+void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
+{
+    /*
+    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    {
+        cout << p -> nazwa << endl;
+    }
+    cout << lista_uzytkownikow.size() <<endl;
+    system ("pause");
+*/
+    string nazwa;
+    string haslo;
+    cout << "Ekran logowania." << endl;
+    cout << "___________________________________________" << endl;
+    cout << "Podaj nazwe uzytkownika: ";
+    cin.sync();
+    getline(cin, nazwa);
+
+    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    {
+        //cout << p-> nazwa <<endl;
+
+        if (nazwa == p -> nazwa)
+        {
+            cout << "Podaj haslo: ";
+            cin.sync();
+            getline(cin, haslo);
+            if (haslo == p -> haslo)
+            {
+                vector <kontakt> lista_kontaktow;
+                wczytaj_kontakty_z_pliku(lista_kontaktow);
+                pokaz_menu_glowne(lista_kontaktow);
+            }
+        }
+        cout << "Nie ma takiego uzytkownika w bazie";
+        system("pause");
+        break;
+    }
+}
+
+void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
+{
+    int wybor_menu_logowania;
+    wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
+    while(true)
+    {
+
+        system("cls");
+        cout << "Ksiazka adresowa" << endl;
+        cout << "___________________________________" << endl;
+        cout << "Menu logowania: " << endl;
+        cout << "1. Utworz nowe konto." << endl;
+        cout << "2. Zaloguj. " << endl;
+        cout << "9. Zakoncz program. " << endl;
+        cout << endl;
+        cout << endl;
+        cout << "Wybierz opcje i zatwierdz enterem: " << endl;
+
+        if (!(cin >> wybor_menu_logowania))
+        {
+            cout << "To nie jest liczba!" << endl;
+            exit(0);
+        }
+        cout << endl;
+
+        if (wybor_menu_logowania == 1)
+        {
+            utworz_nowe_konto(lista_uzytkownikow);
+        }
+        else if (wybor_menu_logowania == 2)
+        {
+            zaloguj_uzytkownika(lista_uzytkownikow);
+        }
+        else
+        {
+            cout << "Nie ma takiego uzytkownika w bazie";
+            exit(0);
+        }
+    }
+    if (wybor_menu_logowania == 9)
+        exit (0);
 }
 
 int main()
 {
-    while(true)
-    {
-        vector <kontakt> lista_kontaktow;
-        wczytaj_kontakty_z_pliku(lista_kontaktow);
-        pokaz_menu_glowne(lista_kontaktow);
-    }
+    vector <uzytkownik> lista_uzytkownikow;
+    wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
+    pokaz_menu_logowania(lista_uzytkownikow);
+
     return 0;
 }
+
 
 /*
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
