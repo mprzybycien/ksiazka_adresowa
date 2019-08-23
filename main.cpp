@@ -32,14 +32,9 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     string email;
 
     if (lista_kontaktow.size()==0)
-    {
         id = 1;
-    }
     else
-    {
-        vector<kontakt>::iterator  itr = lista_kontaktow.end()-1;
-        id = (itr -> id) + 1;
-    }
+        id = lista_kontaktow.size()+1;
 
     system("cls");
     cout << "Dodawanie nowego kontatku." << endl;
@@ -398,6 +393,7 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
 {
     wczytaj_kontakty_z_pliku(lista_kontaktow);
+
     while(true)
     {
         int wybor_menu_glownego;
@@ -545,7 +541,7 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
 {
     string nazwa_u;
     string haslo_u;
-    int liczba_spelnienia_warunku;
+    int liczba_spelnienia_warunku = 0;
     system("cls");
     cout << "Ekran logowania." << endl;
     cout << "___________________________________________" << endl;
@@ -568,7 +564,6 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
                 if (p -> haslo == haslo_u)
                 {
                     vector <kontakt> lista_kontaktow;
-                    wczytaj_kontakty_z_pliku(lista_kontaktow);
                     pokaz_menu_glowne(lista_kontaktow);
                 }
                 else
@@ -585,9 +580,8 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
             }
             break;
         }
-
     }
-    if (liczba_spelnienia_warunku = 0)
+    if (liczba_spelnienia_warunku == 0)
     {
     cout << "Nie ma takiego uzytkownika w bazie" << endl;
     system("pause");
@@ -633,7 +627,6 @@ void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
             exit (0);
         }
     }
-
 }
 
 int main()
