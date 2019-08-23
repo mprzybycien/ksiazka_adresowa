@@ -543,51 +543,65 @@ void utworz_nowe_konto (vector <uzytkownik> &lista_uzytkownikow)
 
 void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
 {
-    /*
-    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
-    {
-        cout << p -> nazwa << endl;
-    }
-    cout << lista_uzytkownikow.size() <<endl;
-    system ("pause");
-*/
-    string nazwa;
-    string haslo;
+    string nazwa_u;
+    string haslo_u;
+    int liczba_spelnienia_warunku;
+    system("cls");
     cout << "Ekran logowania." << endl;
     cout << "___________________________________________" << endl;
     cout << "Podaj nazwe uzytkownika: ";
     cin.sync();
-    getline(cin, nazwa);
+    getline(cin, nazwa_u);
 
     for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
     {
-        //cout << p-> nazwa <<endl;
-
-        if (nazwa == p -> nazwa)
+        if (p -> nazwa == nazwa_u)
         {
-            cout << "Podaj haslo: ";
-            cin.sync();
-            getline(cin, haslo);
-            if (haslo == p -> haslo)
+            liczba_spelnienia_warunku ++;
+            for (int i = 3; i > 0; i--)
             {
-                vector <kontakt> lista_kontaktow;
-                wczytaj_kontakty_z_pliku(lista_kontaktow);
-                pokaz_menu_glowne(lista_kontaktow);
+                cout << "Pozostalo prob: " << i <<endl;
+                cout << "Podaj haslo: ";
+                cin.sync();
+                getline(cin, haslo_u);
+
+                if (p -> haslo == haslo_u)
+                {
+                    vector <kontakt> lista_kontaktow;
+                    wczytaj_kontakty_z_pliku(lista_kontaktow);
+                    pokaz_menu_glowne(lista_kontaktow);
+                }
+                else
+                {
+                    cout << "Niepoprawne haslo.";
+                }
             }
+            system("cls");
+            for (int i = 5; i >=0; i--)
+            {
+                cout << "Ponowne logowanie mozliwe za: " << i << "s";
+                Sleep(1000);
+                system("cls");
+            }
+            break;
         }
-        cout << "Nie ma takiego uzytkownika w bazie";
-        system("pause");
-        break;
+
     }
+    if (liczba_spelnienia_warunku = 0)
+    {
+    cout << "Nie ma takiego uzytkownika w bazie" << endl;
+    system("pause");
+    }
+
 }
 
 void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
 {
     int wybor_menu_logowania;
-    wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
+
     while(true)
     {
-
+        wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
         system("cls");
         cout << "Ksiazka adresowa" << endl;
         cout << "___________________________________" << endl;
@@ -610,24 +624,21 @@ void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
         {
             utworz_nowe_konto(lista_uzytkownikow);
         }
-        else if (wybor_menu_logowania == 2)
+        if (wybor_menu_logowania == 2)
         {
             zaloguj_uzytkownika(lista_uzytkownikow);
         }
-        else
+        if (wybor_menu_logowania == 9)
         {
-            cout << "Nie ma takiego uzytkownika w bazie";
-            exit(0);
+            exit (0);
         }
     }
-    if (wybor_menu_logowania == 9)
-        exit (0);
+
 }
 
 int main()
 {
     vector <uzytkownik> lista_uzytkownikow;
-    wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
     pokaz_menu_logowania(lista_uzytkownikow);
 
     return 0;
