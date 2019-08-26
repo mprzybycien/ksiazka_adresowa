@@ -34,7 +34,11 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     if (lista_kontaktow.size()==0)
         id = 1;
     else
-        id = lista_kontaktow.size()+1;
+    {
+        vector<kontakt>::iterator itr = lista_kontaktow.end() - 1;
+        id = itr -> id + 1;
+    }
+
 
     system("cls");
     cout << "Dodawanie nowego kontatku." << endl;
@@ -392,10 +396,10 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 
 void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
 {
-    wczytaj_kontakty_z_pliku(lista_kontaktow);
-
     while(true)
     {
+        lista_kontaktow.clear();
+        wczytaj_kontakty_z_pliku(lista_kontaktow);
         int wybor_menu_glownego;
         system("cls");
         cout << "Ksiazka adresowa" << endl;
@@ -537,7 +541,7 @@ void utworz_nowe_konto (vector <uzytkownik> &lista_uzytkownikow)
     system("pause");
 }
 
-void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
+void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
 {
     string nazwa_u;
     string haslo_u;
@@ -563,7 +567,6 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
 
                 if (p -> haslo == haslo_u)
                 {
-                    vector <kontakt> lista_kontaktow;
                     pokaz_menu_glowne(lista_kontaktow);
                 }
                 else
@@ -589,7 +592,7 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow)
 
 }
 
-void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
+void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
 {
     int wybor_menu_logowania;
 
@@ -620,7 +623,7 @@ void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
         }
         if (wybor_menu_logowania == 2)
         {
-            zaloguj_uzytkownika(lista_uzytkownikow);
+            zaloguj_uzytkownika(lista_uzytkownikow, lista_kontaktow);
         }
         if (wybor_menu_logowania == 9)
         {
@@ -632,7 +635,8 @@ void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow)
 int main()
 {
     vector <uzytkownik> lista_uzytkownikow;
-    pokaz_menu_logowania(lista_uzytkownikow);
+    vector <kontakt> lista_kontaktow;
+    pokaz_menu_logowania(lista_uzytkownikow, lista_kontaktow);
 
     return 0;
 }
