@@ -8,6 +8,7 @@ using namespace std;
 struct kontakt
 {
     int id;
+    int id_uzytkownika;
     string imie;
     string nazwisko;
     string adres;
@@ -30,6 +31,7 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     string adres;
     string nr_tel;
     string email;
+    string id_uzytkownika;
 
     if (lista_kontaktow.size()==0)
         id = 1;
@@ -39,6 +41,11 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
         id = itr -> id + 1;
     }
 
+    fstream plik_zalogowany_uzytkownik;
+    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
+    if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+    getline(plik_zalogowany_uzytkownik, id_uzytkownika);
+    plik_zalogowany_uzytkownik.close();
 
     system("cls");
     cout << "Dodawanie nowego kontatku." << endl;
@@ -63,6 +70,7 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     plik_kontaktow.open("plik_kontaktow.txt", ios::out | ios::app);
 
     plik_kontaktow << id << "|";
+    plik_kontaktow << id_uzytkownika << "|";
     plik_kontaktow << imie << "|";
     plik_kontaktow << nazwisko << "|";
     plik_kontaktow << adres << "|";
@@ -366,22 +374,26 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
                     tekst_tymczasowy = "";
                     break;
                 case 2:
-                    osoba.imie = tekst_tymczasowy;
+                    osoba.id_uzytkownika = atoi(tekst_tymczasowy.c_str());
                     tekst_tymczasowy = "";
                     break;
                 case 3:
-                    osoba.nazwisko = tekst_tymczasowy;
+                    osoba.imie = tekst_tymczasowy;
                     tekst_tymczasowy = "";
                     break;
                 case 4:
-                    osoba.adres = tekst_tymczasowy;
+                    osoba.nazwisko = tekst_tymczasowy;
                     tekst_tymczasowy = "";
                     break;
                 case 5:
-                    osoba.nr_tel = tekst_tymczasowy;
+                    osoba.adres = tekst_tymczasowy;
                     tekst_tymczasowy = "";
                     break;
                 case 6:
+                    osoba.nr_tel = tekst_tymczasowy;
+                    tekst_tymczasowy = "";
+                    break;
+                case 7:
                     osoba.email = tekst_tymczasowy;
                     tekst_tymczasowy = "";
                     break;
@@ -511,6 +523,20 @@ void utworz_nowe_konto (vector <uzytkownik> &lista_uzytkownikow)
     cin.sync();
     getline(cin, nazwa);
 
+    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    {
+        if (nazwa == p -> nazwa)
+        {
+            system("cls");
+            cout << "Istnieje juz uzytkownik o takiej nazwie" <<endl;
+            cout << "Podaj inna nazwe uzytkownika: ";
+            nazwa = "";
+            p = lista_uzytkownikow.begin();
+            cin.sync();
+            getline(cin, nazwa);
+        }
+    }
+
     while(true)
     {
         cout << "Wpisz haslo: ";
@@ -567,7 +593,11 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontak
 
                 if (p -> haslo == haslo_u)
                 {
-                    pokaz_menu_glowne(lista_kontaktow);
+                fstream plik_zalogowany_uzytkownik;
+                plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt",ios::out);
+                plik_zalogowany_uzytkownik << p -> id;
+                plik_zalogowany_uzytkownik.close();
+                pokaz_menu_glowne(lista_kontaktow);
                 }
                 else
                 {
@@ -589,7 +619,6 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontak
     cout << "Nie ma takiego uzytkownika w bazie" << endl;
     system("pause");
     }
-
 }
 
 void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
