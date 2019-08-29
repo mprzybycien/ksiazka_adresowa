@@ -31,7 +31,8 @@ int pokaz_id_zalogowanego_uzytkownika()
 
     fstream plik_zalogowany_uzytkownik;
     plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-    if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+    if(plik_zalogowany_uzytkownik.good()==false)
+        cout<<"Nie mozna otworzyc pliku!";
     getline(plik_zalogowany_uzytkownik, id_uzytkownika_z_pliku);
     id_uzytkownika = atoi(id_uzytkownika_z_pliku.c_str());
     plik_zalogowany_uzytkownik.close();
@@ -52,12 +53,12 @@ int pokaz_id_ostatniego_rekordu()
     plik_kontaktow.open("plik_kontaktow.txt", ios::in);
     if (plik_kontaktow.good()==false)
     {
-         cout<<"Nie udalo sie odtworzyc pliku.";
-         exit(0);
+        cout<<"Nie udalo sie odtworzyc pliku.";
+        exit(0);
     }
     while(getline(plik_kontaktow, linia_tekstu))
     {
-    ilosc_linii_tekstu++;
+        ilosc_linii_tekstu++;
     }
     plik_kontaktow.close();
 
@@ -93,7 +94,8 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
 
     fstream plik_zalogowany_uzytkownik;
     plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-    if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+    if(plik_zalogowany_uzytkownik.good()==false)
+        cout<<"Nie mozna otworzyc pliku!";
     getline(plik_zalogowany_uzytkownik, id_uzytkownika);
     plik_zalogowany_uzytkownik.close();
 
@@ -276,7 +278,7 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
             cout << "5. Adres e-mail: " << p -> email << endl;
             cout << endl;
             cout << "___________________________________________" << endl;
-            cout << "Wybierz dana, ktora ma zostac zmieniona: ";
+            cout << "Wybierz parametr, ktory ma zostac zmieniony: ";
             cin >> wybor_parametru;
 
             osoba.id = id;
@@ -354,11 +356,11 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
             id_str = "";
             int i = 0;
             while (isdigit(ostatnia_linia_tekstu[i]) == true)
-                {
-                    znak_temp = ostatnia_linia_tekstu[i];
-                    id_str += znak_temp;
-                    i++;
-                }
+            {
+                znak_temp = ostatnia_linia_tekstu[i];
+                id_str += znak_temp;
+                i++;
+            }
             id_plik_glowny = atoi(id_str.c_str());
             if (id_plik_glowny != id)
             {
@@ -381,7 +383,7 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
         remove("plik_kontaktow.txt");
         rename("plik_tymczasowy.txt", "plik_kontaktow.txt");
 
-        cout << "Pomyslnie edytowano." << endl << endl;
+        cout << endl << "Pomyslnie edytowano." << endl << endl;
     }
     system ("pause");
 }
@@ -392,7 +394,6 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
     int id;
     int wybor_parametru;
     char decyzja;
-    int numer_linii = 0;
     int licznik_spelnienia_warunku = 0;
 
     cout << "Podaj ID kontaktu, ktory chcesz usunac: ";
@@ -401,7 +402,6 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
 
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); ++p)
     {
-        numer_linii++;
         if (p -> id == id)
         {
             licznik_spelnienia_warunku++;
@@ -419,35 +419,47 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
 
             if (decyzja == 't')
             {
-                if (numer_linii == lista_kontaktow.size())
-                {
-                    p = lista_kontaktow.begin();
-                    lista_kontaktow.pop_back();
-                }
-                else
-                    lista_kontaktow.erase(lista_kontaktow.begin() + (numer_linii - 1));
-            }
+                string linia_tekstu;
+                string ostatnia_linia_tekstu;
+                string id_str;
+                char znak_temp;
+                int id_plik_glowny;
 
+                fstream plik_kontaktow;
+                fstream plik_tymczasowy;
+                plik_kontaktow.open("plik_kontaktow.txt", ios::in);
+                plik_tymczasowy.open("plik_tymczasowy.txt", ios::out);
+
+                while(getline(plik_kontaktow, linia_tekstu))
+                {
+                    ostatnia_linia_tekstu = linia_tekstu;
+                    id_str = "";
+                    int i = 0;
+                    while (isdigit(ostatnia_linia_tekstu[i]) == true)
+                    {
+                        znak_temp = ostatnia_linia_tekstu[i];
+                        id_str += znak_temp;
+                        i++;
+                    }
+                    id_plik_glowny = atoi(id_str.c_str());
+                    if (id_plik_glowny != id)
+                    {
+                        plik_tymczasowy << ostatnia_linia_tekstu <<endl;
+                    }
+                }
+                plik_kontaktow.close();
+                plik_tymczasowy.close();
+
+                remove("plik_kontaktow.txt");
+                rename("plik_tymczasowy.txt", "plik_kontaktow.txt");
+                cout << endl << "Pomyslnie usunieto kontakt." << endl << endl;
+            }
             else if (decyzja == 'n')
                 break;
         }
     }
     if (licznik_spelnienia_warunku == 0)
-        cout << "Nie istnieje kontakt o takim ID." <<endl;
-    else
-    {
-        fstream plik_kontaktow;
-        plik_kontaktow.open("plik_kontaktow.txt", ios::out);
-        for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); ++p)
-        {
-            plik_kontaktow << p -> id << "|";
-            plik_kontaktow << p -> imie << "|";
-            plik_kontaktow << p -> nazwisko << "|";
-            plik_kontaktow << p -> adres << "|";
-            plik_kontaktow << p -> nr_tel<< "|";
-            plik_kontaktow << p -> email << "|" << endl;
-        }
-    }
+        cout << "Nie istnieje kontakt o takim ID." << endl << endl;
     system ("pause");
 }
 
@@ -516,14 +528,15 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 
         fstream plik_zalogowany_uzytkownik;
         plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-        if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+        if(plik_zalogowany_uzytkownik.good()==false)
+            cout<<"Nie mozna otworzyc pliku!";
         getline(plik_zalogowany_uzytkownik, id_uzytkownika);
         plik_zalogowany_uzytkownik.close();
 
         id_uzytkownika_int = atoi(id_uzytkownika.c_str());
 
         if (id_uzytkownika_int == osoba.id_uzytkownika)
-        lista_kontaktow.push_back(osoba);
+            lista_kontaktow.push_back(osoba);
     }
     plik_kontaktow.close ();
 }
@@ -715,11 +728,11 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontak
 
                 if (p -> haslo == haslo_u)
                 {
-                fstream plik_zalogowany_uzytkownik;
-                plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt",ios::out);
-                plik_zalogowany_uzytkownik << p -> id;
-                plik_zalogowany_uzytkownik.close();
-                pokaz_menu_glowne(lista_kontaktow);
+                    fstream plik_zalogowany_uzytkownik;
+                    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt",ios::out);
+                    plik_zalogowany_uzytkownik << p -> id;
+                    plik_zalogowany_uzytkownik.close();
+                    pokaz_menu_glowne(lista_kontaktow);
                 }
                 else
                 {
@@ -738,8 +751,8 @@ void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontak
     }
     if (liczba_spelnienia_warunku == 0)
     {
-    cout << "Nie ma takiego uzytkownika w bazie" << endl;
-    system("pause");
+        cout << "Nie ma takiego uzytkownika w bazie" << endl;
+        system("pause");
     }
 }
 
