@@ -24,6 +24,24 @@ struct uzytkownik
     string haslo;
 };
 
+int pokaz_id_zalogowanego_uzytkownika()
+{
+    int id_uzytkownika;
+    string id_uzytkownika_z_pliku;
+    string id_uzytkownika_str;
+
+    fstream plik_zalogowany_uzytkownik;
+    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
+    if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+
+    getline(plik_zalogowany_uzytkownik, id_uzytkownika_z_pliku);
+    id_uzytkownika = atoi(id_uzytkownika_str.c_str());
+
+    plik_zalogowany_uzytkownik.close();
+
+    return id_uzytkownika;
+}
+
 int pokaz_id_ostatniego_rekordu()
 {
     string linia_tekstu;
@@ -233,9 +251,10 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
 {
     system ("cls");
     int id;
-    int wybor_danej;
+    int wybor_parametru;
     string imie, nazwisko, adres, telefon, email;
     int licznik_spelnienia_warunku = 0;
+    kontakt osoba;
 
     cout << "Podaj ID kontaktu, ktory chcesz edytowac: ";
     cin >> id;
@@ -256,34 +275,37 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
             cout << endl;
             cout << "___________________________________________" << endl;
             cout << "Wybierz dana, ktora ma zostac zmieniona: ";
-            cin >> wybor_danej;
+            cin >> wybor_parametru;
 
-            switch (wybor_danej)
+            osoba.id = id;
+            osoba.id_uzytkownika = pokaz_id_zalogowanego_uzytkownika();
+
+            switch (wybor_parametru)
             {
             case 1:
                 cout << "Podaj nowe imie: ";
                 cin >> imie;
-                p -> imie = imie;
+                osoba.imie = imie;
                 break;
             case 2:
                 cout << "Podaj nowe nazwisko: ";
                 cin >> nazwisko;
-                p -> nazwisko = nazwisko;
+                osoba.nazwisko = nazwisko;
                 break;
             case 3:
                 cout << "Podaj nowy adres: ";
                 cin >> adres;
-                p -> adres = adres;
+                osoba.adres = adres;
                 break;
             case 4:
                 cout << "Podaj nowy numer telefonu: ";
                 cin >> telefon;
-                p -> nr_tel = telefon;
+                osoba.nr_tel = telefon;
                 break;
             case 5:
                 cout << "Podaj nowy adres email: ";
                 cin >> email;
-                p -> email = email;
+                osoba.email = email;
                 break;
             }
         }
@@ -293,18 +315,48 @@ void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
         cout << "Nie istnieje kontakt o takim ID." <<endl;
     else
     {
+        string linia_tekstu;
+        string ostatnia_linia_tekstu;
+        string id_str;
+        char znak_temp;
+        int id_plik_glowny;
+
         fstream plik_kontaktow;
+        fstream plik_tymczasowy;
         plik_kontaktow.open("plik_kontaktow.txt", ios::out);
-        for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
+        plik_tymczasowy.open("plik_tymczasowy.txt", ios::in);
+
+        while(getline(plik_kontaktow, linia_tekstu))
         {
-            plik_kontaktow << p -> id << "|";
-            plik_kontaktow << p -> imie << "|";
-            plik_kontaktow << p -> nazwisko << "|";
-            plik_kontaktow << p -> adres << "|";
-            plik_kontaktow << p -> nr_tel<< "|";
-            plik_kontaktow << p -> email << "|" << endl;
+            ostatnia_linia_tekstu = linia_tekstu;
+            int i = 0;
+            while (isdigit(ostatnia_linia_tekstu[i]) == true)
+                {
+                    znak_temp = ostatnia_linia_tekstu[i];
+                    id_str += znak_temp;
+                    i++;
+                }
+            id_plik_glowny = atoi(id_str.c_str());
+
+            if (id_plik_glowny != id)
+            {
+                plik_tymczasowy << linia_tekstu;
+            }
+            else
+            {
+                plik_tymczasowy << osoba.id << "|";
+                plik_tymczasowy << osoba.id_uzytkownika << "|";
+                plik_tymczasowy << osoba.imie << "|";
+                plik_tymczasowy << osoba.nazwisko << "|";
+                plik_tymczasowy << osoba.adres << "|";
+                plik_tymczasowy << osoba.nr_tel<< "|";
+                plik_tymczasowy << osoba.email << "|" << endl;
+            }
         }
+        plik_kontaktow.close();
+        plik_tymczasowy.close();
     }
+    cout << "Pomyœlnie edytowano." <<endl;
     system ("pause");
 }
 
@@ -312,7 +364,7 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
 {
     system ("cls");
     int id;
-    int wybor_danej;
+    int wybor_parametru;
     char decyzja;
     int numer_linii = 0;
     int licznik_spelnienia_warunku = 0;
