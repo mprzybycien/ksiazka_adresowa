@@ -63,7 +63,7 @@ int pokaz_id_ostatniego_rekordu()
     plik_kontaktow.close();
 
     plik_kontaktow.open("plik_kontaktow.txt", ios::in);
-    for (int a = 0; a <ilosc_linii_tekstu; a++)
+    for (int j = 0; j <ilosc_linii_tekstu; j++)
     {
         getline(plik_kontaktow, linia_tekstu);
         ostatnia_linia_tekstu = linia_tekstu;
