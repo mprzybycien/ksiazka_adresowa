@@ -2,6 +2,7 @@
 #include <fstream>
 #include <windows.h>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -23,6 +24,38 @@ struct uzytkownik
     string haslo;
 };
 
+int pokaz_id_ostatniego_rekordu()
+{
+    string linia_tekstu;
+    string ostatnia_linia_tekstu;
+    string id_str;
+    char znak_temp;
+    int id;
+
+    fstream plik_kontaktow;
+    plik_kontaktow.open("plik_kontaktow.txt", ios::in);
+    if (plik_kontaktow.good()==false)
+    {
+         cout<<"Nie udalo sie odtworzyc pliku.";
+         exit(0);
+    }
+
+    while(getline(plik_kontaktow, linia_tekstu))
+    ostatnia_linia_tekstu = linia_tekstu;
+    plik_kontaktow.close();
+
+    int i = 0;
+    while (isdigit(ostatnia_linia_tekstu[i]) == true)
+    {
+        znak_temp = ostatnia_linia_tekstu[i];
+        id_str += znak_temp;
+        i++;
+    }
+    id = atoi(id_str.c_str());
+
+    return id;
+}
+
 void dodaj_kontakt (vector <kontakt> lista_kontaktow)
 {
     int id;
@@ -37,8 +70,7 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
         id = 1;
     else
     {
-        vector<kontakt>::iterator itr = lista_kontaktow.end() - 1;
-        id = itr -> id + 1;
+        id = pokaz_id_ostatniego_rekordu() + 1;
     }
 
     fstream plik_zalogowany_uzytkownik;
@@ -343,13 +375,15 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
 
 void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 {
-    fstream plik_kontaktow;
     string linia_tekstu_w_pliku;
     string tekst_tymczasowy;
+    string id_uzytkownika;
+    int id_uzytkownika_int;
     int licznik_kresek = 0;
     int dlugosc;
     char znak;
 
+    fstream plik_kontaktow;
     plik_kontaktow.open("plik_kontaktow.txt", ios::in);
 
     while(getline(plik_kontaktow,linia_tekstu_w_pliku))
@@ -401,6 +435,16 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
             }
         }
         licznik_kresek = 0;
+
+        fstream plik_zalogowany_uzytkownik;
+        plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
+        if(plik_zalogowany_uzytkownik.good()==false) cout<<"Nie mozna otworzyc pliku!";
+        getline(plik_zalogowany_uzytkownik, id_uzytkownika);
+        plik_zalogowany_uzytkownik.close();
+
+        id_uzytkownika_int = atoi(id_uzytkownika.c_str());
+
+        if (id_uzytkownika_int == osoba.id_uzytkownika)
         lista_kontaktow.push_back(osoba);
     }
     plik_kontaktow.close ();
