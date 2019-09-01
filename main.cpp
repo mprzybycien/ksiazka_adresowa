@@ -30,22 +30,6 @@ struct dane_po_logowaniu
     int id_uzytkownika;
 };
 
-int pokaz_id_zalogowanego_uzytkownika()
-{
-    int id_uzytkownika;
-    string id_uzytkownika_z_pliku;
-
-    fstream plik_zalogowany_uzytkownik;
-    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-    if(plik_zalogowany_uzytkownik.good()==false)
-        cout<<"Nie mozna otworzyc pliku!";
-    getline(plik_zalogowany_uzytkownik, id_uzytkownika_z_pliku);
-    id_uzytkownika = atoi(id_uzytkownika_z_pliku.c_str());
-    plik_zalogowany_uzytkownik.close();
-
-    return id_uzytkownika;
-}
-
 int pokaz_id_ostatniego_rekordu()
 {
     string linia_tekstu;
@@ -63,9 +47,7 @@ int pokaz_id_ostatniego_rekordu()
         exit(0);
     }
     while(getline(plik_kontaktow, linia_tekstu))
-    {
         ilosc_linii_tekstu++;
-    }
     plik_kontaktow.close();
 
     plik_kontaktow.open("plik_kontaktow.txt", ios::in);
@@ -193,7 +175,6 @@ void wyszukaj_w_kontaktach_po_nazwisku (vector <kontakt> lista_kontaktow)
         if (poszukiwana_fraza == p -> nazwisko)
         {
             licznik_spelnienia_warunku++;
-
             cout << p -> id << ". " <<
                  p -> imie << " " <<
                  p -> nazwisko << ", " <<
@@ -236,24 +217,20 @@ void wypisz_wszystko (vector <kontakt> lista_kontaktow)
     system ("pause");
 }
 
-void edytuj_kontakt (vector <kontakt> lista_kontaktow)
+kontakt edycja_zapisz_nowe_dane_do_struktury(vector <kontakt> lista_kontaktow, dane_po_logowaniu poprawne_logowanie)
 {
-    system ("cls");
     int id;
     int wybor_parametru;
     string imie, nazwisko, adres, telefon, email;
-    int licznik_spelnienia_warunku = 0;
     kontakt osoba;
-
+    osoba.id = 0;
     cout << "Podaj ID kontaktu, ktory chcesz edytowac: ";
     cin >> id;
     cout << "___________________________________________" << endl;
-
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
     {
         if (p -> id == id)
         {
-            licznik_spelnienia_warunku++;
             cout << "ID = " << p -> id <<endl;
             cout << "___________________________________________" << endl;
             cout << "1. Imie: " << p -> imie << endl;
@@ -265,10 +242,8 @@ void edytuj_kontakt (vector <kontakt> lista_kontaktow)
             cout << "___________________________________________" << endl;
             cout << "Wybierz parametr, ktory ma zostac zmieniony: ";
             cin >> wybor_parametru;
-
             osoba.id = id;
-            osoba.id_uzytkownika = pokaz_id_zalogowanego_uzytkownika();
-
+            osoba.id_uzytkownika = poprawne_logowanie.id_uzytkownika;
             switch (wybor_parametru)
             {
             case 1:
@@ -319,37 +294,38 @@ void edytuj_kontakt (vector <kontakt> lista_kontaktow)
             }
         }
     }
+    return osoba;
+}
 
-    if (licznik_spelnienia_warunku == 0)
+void edytuj_kontakt (vector <kontakt> lista_kontaktow, dane_po_logowaniu poprawne_logowanie)
+{
+    system ("cls");
+    kontakt osoba;
+    osoba = edycja_zapisz_nowe_dane_do_struktury(lista_kontaktow, poprawne_logowanie);
+    if (osoba.id == 0)
         cout << "Nie istnieje kontakt o takim ID." <<endl;
     else
     {
-        string linia_tekstu;
-        string ostatnia_linia_tekstu;
-        string id_str;
+        string linia_tekstu, id_str;
         char znak_temp;
         int id_plik_glowny;
-
-        fstream plik_kontaktow;
-        fstream plik_tymczasowy;
+        fstream plik_kontaktow, plik_tymczasowy;
         plik_kontaktow.open("plik_kontaktow.txt", ios::in);
         plik_tymczasowy.open("plik_tymczasowy.txt", ios::out);
-
         while(getline(plik_kontaktow, linia_tekstu))
         {
-            ostatnia_linia_tekstu = linia_tekstu;
             id_str = "";
             int i = 0;
-            while (isdigit(ostatnia_linia_tekstu[i]) == true)
+            while (isdigit(linia_tekstu[i]) == true)
             {
-                znak_temp = ostatnia_linia_tekstu[i];
+                znak_temp = linia_tekstu[i];
                 id_str += znak_temp;
                 i++;
             }
             id_plik_glowny = atoi(id_str.c_str());
-            if (id_plik_glowny != id)
+            if (id_plik_glowny != osoba.id)
             {
-                plik_tymczasowy << ostatnia_linia_tekstu <<endl;
+                plik_tymczasowy << linia_tekstu <<endl;
             }
             else
             {
@@ -366,9 +342,11 @@ void edytuj_kontakt (vector <kontakt> lista_kontaktow)
         plik_tymczasowy.close();
 
         remove("plik_kontaktow.txt");
+
         rename("plik_tymczasowy.txt", "plik_kontaktow.txt");
 
-        cout << endl << "Pomyslnie edytowano." << endl << endl;
+        cout << endl << "___________________________________________" << endl;
+        cout << "Pomyslnie edytowano." << endl << endl;
     }
     system ("pause");
 }
@@ -376,15 +354,11 @@ void edytuj_kontakt (vector <kontakt> lista_kontaktow)
 void usun_kontakt ( vector <kontakt> lista_kontaktow)
 {
     system ("cls");
-    int id;
-    int wybor_parametru;
+    int id, wybor_parametru, licznik_spelnienia_warunku = 0;
     char decyzja;
-    int licznik_spelnienia_warunku = 0;
-
     cout << "Podaj ID kontaktu, ktory chcesz usunac: ";
     cin >> id;
     cout << "___________________________________________" << endl;
-
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); ++p)
     {
         if (p -> id == id)
@@ -399,42 +373,32 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
             cout << "5. Adres e-mail: " << p -> email << endl;
             cout << endl;
             cout << "___________________________________________" << endl;
-            cout << "Czy na pewno chcesz usunac wyswitlony kontatkt? (t/n) ";
+            cout << "Czy na pewno chcesz usunac wyswitlony kontakt? (t/n) ";
             cin >> decyzja;
-
             if (decyzja == 't')
             {
-                string linia_tekstu;
-                string ostatnia_linia_tekstu;
-                string id_str;
+                string linia_tekstu, id_str;
                 char znak_temp;
                 int id_plik_glowny;
-
-                fstream plik_kontaktow;
-                fstream plik_tymczasowy;
+                fstream plik_kontaktow, plik_tymczasowy;
                 plik_kontaktow.open("plik_kontaktow.txt", ios::in);
                 plik_tymczasowy.open("plik_tymczasowy.txt", ios::out);
-
                 while(getline(plik_kontaktow, linia_tekstu))
                 {
-                    ostatnia_linia_tekstu = linia_tekstu;
                     id_str = "";
                     int i = 0;
-                    while (isdigit(ostatnia_linia_tekstu[i]) == true)
+                    while (isdigit(linia_tekstu[i]) == true)
                     {
-                        znak_temp = ostatnia_linia_tekstu[i];
+                        znak_temp = linia_tekstu[i];
                         id_str += znak_temp;
                         i++;
                     }
                     id_plik_glowny = atoi(id_str.c_str());
                     if (id_plik_glowny != id)
-                    {
-                        plik_tymczasowy << ostatnia_linia_tekstu <<endl;
-                    }
+                        plik_tymczasowy << linia_tekstu <<endl;
                 }
                 plik_kontaktow.close();
                 plik_tymczasowy.close();
-
                 remove("plik_kontaktow.txt");
                 rename("plik_tymczasowy.txt", "plik_kontaktow.txt");
                 cout << endl << "Pomyslnie usunieto kontakt." << endl << endl;
@@ -448,31 +412,22 @@ void usun_kontakt ( vector <kontakt> lista_kontaktow)
     system ("pause");
 }
 
-void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
+void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow, dane_po_logowaniu poprawne_logowanie)
 {
-    string linia_tekstu_w_pliku;
-    string tekst_tymczasowy;
-    string id_uzytkownika;
-    int id_uzytkownika_int;
-    int licznik_kresek = 0;
-    int dlugosc;
+    string linia_tekstu_w_pliku, tekst_tymczasowy;
+    int id_uzytk, licznik_kresek = 0, dlugosc;
     char znak;
-
     fstream plik_kontaktow;
     plik_kontaktow.open("plik_kontaktow.txt", ios::in);
-
     while(getline(plik_kontaktow,linia_tekstu_w_pliku))
     {
         kontakt osoba;
         dlugosc = linia_tekstu_w_pliku.length();
-
         for (int i = 0; i < dlugosc; i++)
         {
             znak = linia_tekstu_w_pliku[i];
             if (znak != '|')
-            {
                 tekst_tymczasowy += znak;
-            }
             else
             {
                 licznik_kresek++;
@@ -510,17 +465,8 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
             }
         }
         licznik_kresek = 0;
-
-        fstream plik_zalogowany_uzytkownik;
-        plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-        if(plik_zalogowany_uzytkownik.good()==false)
-            cout<<"Nie mozna otworzyc pliku!";
-        getline(plik_zalogowany_uzytkownik, id_uzytkownika);
-        plik_zalogowany_uzytkownik.close();
-
-        id_uzytkownika_int = atoi(id_uzytkownika.c_str());
-
-        if (id_uzytkownika_int == osoba.id_uzytkownika)
+        id_uzytk = poprawne_logowanie.id_uzytkownika;
+        if (id_uzytk == osoba.id_uzytkownika)
             lista_kontaktow.push_back(osoba);
     }
     plik_kontaktow.close ();
@@ -529,17 +475,16 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
 void zmien_haslo(vector <uzytkownik> &lista_uzytkownikow, dane_po_logowaniu poprawne_logowanie)
 {
     system ("cls");
-    string stare_haslo;
-    string nowe_haslo;
+    string stare_haslo, nowe_haslo;
     for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
     {
         if (poprawne_logowanie.id_uzytkownika == p -> id)
         {
-        cout << "Zmiana hasla: " <<endl;
-        cout << "___________________________________________" << endl;
-        cout << "Podaj stare haslo: " << endl;
-        cin.sync();
-        getline (cin, stare_haslo);
+            cout << "Zmiana hasla: " <<endl;
+            cout << "___________________________________________" << endl;
+            cout << "Podaj stare haslo: " << endl;
+            cin.sync();
+            getline (cin, stare_haslo);
             if (stare_haslo == p -> haslo)
             {
                 cout << "Podaj nowe haslo: " << endl;
@@ -557,7 +502,6 @@ void zmien_haslo(vector <uzytkownik> &lista_uzytkownikow, dane_po_logowaniu popr
     }
     fstream plik_uzytkownikow;
     plik_uzytkownikow.open("plik_uzytkownikow.txt", ios::out);
-
     for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
     {
         if (poprawne_logowanie.id_uzytkownika != p -> id)
@@ -574,7 +518,6 @@ void zmien_haslo(vector <uzytkownik> &lista_uzytkownikow, dane_po_logowaniu popr
         }
     }
     plik_uzytkownikow.close();
-
     cout << endl << "Poprawnie zmieniono haslo." << endl;
     cout << "___________________________________________" << endl;
     system("pause");
@@ -585,7 +528,7 @@ void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow, vector <uzytkownik> &l
     while(true)
     {
         lista_kontaktow.clear();
-        wczytaj_kontakty_z_pliku(lista_kontaktow);
+        wczytaj_kontakty_z_pliku(lista_kontaktow, poprawne_logowanie);
         int wybor_menu_glownego;
         system("cls");
         cout << "Ksiazka adresowa" << endl;
@@ -621,7 +564,7 @@ void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow, vector <uzytkownik> &l
         if (wybor_menu_glownego == 4)
             wypisz_wszystko(lista_kontaktow);
         if (wybor_menu_glownego == 5)
-            edytuj_kontakt(lista_kontaktow);
+            edytuj_kontakt(lista_kontaktow, poprawne_logowanie);
         if (wybor_menu_glownego == 6)
             usun_kontakt(lista_kontaktow);
         if (wybor_menu_glownego == 7)
@@ -755,7 +698,7 @@ void wstrzymaj_logwanie()
     system("cls");
     for (int i = 5; i >= 0; i--)
     {
-        cout << "Ponowne logowanie mozliwe za: " << i << "s";
+        cout << "Mozesz ponownie wprowadzic haslo po: " << i << "s";
         Sleep(1000);
         system("cls");
     }
@@ -764,9 +707,9 @@ void wstrzymaj_logwanie()
 dane_po_logowaniu zaloguj_uzytkownika (vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
 {
     dane_po_logowaniu poprawne_logowanie;
-    int liczba_spelnienia_warunku = 0;
     while (true)
     {
+        int liczba_spelnienia_warunku = 0;
         system("cls");
         cout << "Ekran logowania." << endl;
         cout << "___________________________________________" << endl;
@@ -794,10 +737,12 @@ dane_po_logowaniu zaloguj_uzytkownika (vector <uzytkownik> &lista_uzytkownikow, 
                     }
                     else if (i == 1)
                         wstrzymaj_logwanie();
-                    else
+                    else if ((i == 2) || (i == 3))
                         cout << "Niepoprawne haslo.";
                 }
             }
+            if (poprawne_logowanie.powodzenie_logowania == true)
+                break;
         }
         if (liczba_spelnienia_warunku == 0)
         {
@@ -868,9 +813,8 @@ int main()
         cout << p -> id << "; " << p -> imie << "; " << p -> nazwisko << "; "<< p -> adres << "; "<< p -> nr_tel << "; "<< p -> email << endl;
     }
     system ("pause");
-*/
 
-/*
+
 http://cpp0x.pl/dokumentacja/standard-C/remove/318
 http://cpp0x.pl/dokumentacja/standard-C/rename/211
 */
