@@ -24,6 +24,12 @@ struct uzytkownik
     string haslo;
 };
 
+struct dane_po_logowaniu
+{
+    bool powodzenie_logowania;
+    int id_uzytkownika;
+};
+
 int pokaz_id_zalogowanego_uzytkownika()
 {
     int id_uzytkownika;
@@ -82,7 +88,7 @@ int pokaz_id_ostatniego_rekordu()
     return id;
 }
 
-void dodaj_kontakt (vector <kontakt> lista_kontaktow)
+void dodaj_kontakt (vector <kontakt> lista_kontaktow, dane_po_logowaniu poprawne_logowanie)
 {
     int id;
     string imie;
@@ -90,14 +96,6 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     string adres;
     string nr_tel;
     string email;
-    string id_uzytkownika;
-
-    fstream plik_zalogowany_uzytkownik;
-    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt", ios::in);
-    if(plik_zalogowany_uzytkownik.good()==false)
-        cout<<"Nie mozna otworzyc pliku!";
-    getline(plik_zalogowany_uzytkownik, id_uzytkownika);
-    plik_zalogowany_uzytkownik.close();
 
     system("cls");
     cout << "Dodawanie nowego kontatku." << endl;
@@ -124,7 +122,7 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     id = pokaz_id_ostatniego_rekordu() + 1;
 
     plik_kontaktow << id << "|";
-    plik_kontaktow << id_uzytkownika << "|";
+    plik_kontaktow << poprawne_logowanie.id_uzytkownika << "|";
     plik_kontaktow << imie << "|";
     plik_kontaktow << nazwisko << "|";
     plik_kontaktow << adres << "|";
@@ -138,94 +136,81 @@ void dodaj_kontakt (vector <kontakt> lista_kontaktow)
     system("pause");
 }
 
-void wyszukaj_w_kontaktach (vector <kontakt> lista_kontaktow)
+void wyszukaj_w_kontaktach_po_imieniu (vector <kontakt> lista_kontaktow)
 {
-    int wybor_przy_wyszukiwaniu;
     string poszukiwana_fraza;
     system ("cls");
-    cout << "1. Wyszukuj po imieniu" << endl;
-    cout << "2. Wyszukuj po nazwisku" << endl;
+
+    system ("cls");
+    cout << "Wyszukaj w kontaktach po imieniu" << endl;
     cout << "____________________________________" << endl;
-    cout << "Wybierz opcje i zatwierdz enterem: ";
-    cin >> wybor_przy_wyszukiwaniu;
-
-    if (wybor_przy_wyszukiwaniu == 1)
+    cout << "Podaj imie i zatwierdz enterem: " << endl;
+    cin >> poszukiwana_fraza;
+    system ("cls");
+    cout << "ID. Imie i nazawisko, Adres zamieszkania, Telefon, Adres email"<< endl;
+    cout << "________________________________________________________________" << endl << endl;
+    int licznik_spelnienia_warunku = 0;
+    for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
     {
-        system ("cls");
-        cout << "Wyszukaj w kontaktach po imieniu" << endl;
-        cout << "____________________________________" << endl;
-        cout << "Podaj imie i zatwierdz enterem: " << endl;
-        cin >> poszukiwana_fraza;
-        system ("cls");
-        cout << "ID. Imie i nazawisko, Adres zamieszkania, Telefon, Adres email"<< endl;
-        cout << "________________________________________________________________" << endl << endl;
-        int licznik_spelnienia_warunku = 0;
-        for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
+        if (poszukiwana_fraza == p -> imie)
         {
-            if (poszukiwana_fraza == p -> imie)
-            {
-                licznik_spelnienia_warunku++;
-
-                cout << p -> id << ". " <<
-                     p -> imie << ", " <<
-                     p -> nazwisko << ", " <<
-                     p -> adres << ", " <<
-                     p -> nr_tel << ", " <<
-                     p -> email << endl;
-            }
+            licznik_spelnienia_warunku++;
+            cout << p -> id << ". " <<
+                 p -> imie << ", " <<
+                 p -> nazwisko << ", " <<
+                 p -> adres << ", " <<
+                 p -> nr_tel << ", " <<
+                 p -> email << endl;
         }
-        if (licznik_spelnienia_warunku == 0)
-        {
-            cout << "Nie istnieje taki kontakt." << endl;
-        }
-        else
-        {
-            cout << endl;
-            cout << "________________________________________________________________" << endl;
-            cout << "Znaleziono " << licznik_spelnienia_warunku << " rekordow." << endl;
-        }
-
-        system("pause");
+    }
+    if (licznik_spelnienia_warunku == 0)
+        cout << "Nie istnieje taki kontakt." << endl;
+    else
+    {
+        cout << endl;
+        cout << "________________________________________________________________" << endl;
+        cout << "Znaleziono rekordow: " << licznik_spelnienia_warunku << endl;
     }
 
-    if (wybor_przy_wyszukiwaniu == 2)
+    system("pause");
+}
+
+void wyszukaj_w_kontaktach_po_nazwisku (vector <kontakt> lista_kontaktow)
+{
+    string poszukiwana_fraza;
+    system ("cls");
+    system ("cls");
+    cout << "Wyszukaj w kontaktach po nazwisku" << endl;
+    cout << "____________________________________" << endl;
+    cout << "Podaj nazwisko i zatwierdz enterem: " << endl;
+    cin >> poszukiwana_fraza;
+    system ("cls");
+    cout << "ID. Imie i nazawisko, Adres zamieszkania, Telefon, Adres email"<< endl;
+    cout << "________________________________________________________________" << endl << endl;
+    int licznik_spelnienia_warunku = 0;
+    for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
     {
-        system ("cls");
-        cout << "Wyszukaj w kontaktach po nazwisku" << endl;
-        cout << "____________________________________" << endl;
-        cout << "Podaj nazwisko i zatwierdz enterem: " << endl;
-        cin >> poszukiwana_fraza;
-        system ("cls");
-        cout << "ID. Imie i nazawisko, Adres zamieszkania, Telefon, Adres email"<< endl;
-        cout << "________________________________________________________________" << endl << endl;
-        int licznik_spelnienia_warunku = 0;
-        for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
+        if (poszukiwana_fraza == p -> nazwisko)
         {
-            if (poszukiwana_fraza == p -> nazwisko)
-            {
-                licznik_spelnienia_warunku++;
+            licznik_spelnienia_warunku++;
 
-                cout << p -> id << ". " <<
-                     p -> imie << " " <<
-                     p -> nazwisko << ", " <<
-                     p -> adres << ", " <<
-                     p -> nr_tel << ", " <<
-                     p -> email << endl;
-            }
+            cout << p -> id << ". " <<
+                 p -> imie << " " <<
+                 p -> nazwisko << ", " <<
+                 p -> adres << ", " <<
+                 p -> nr_tel << ", " <<
+                 p -> email << endl;
         }
-        if (licznik_spelnienia_warunku == 0)
-        {
-            cout << "Nie istnieje taki kontakt." << endl;
-        }
-        else
-        {
-            cout << endl;
-            cout << "________________________________________________________________" << endl;
-            cout << "Znaleziono " << licznik_spelnienia_warunku << " rekordow." << endl;
-        }
-
-        system("pause");
     }
+    if (licznik_spelnienia_warunku == 0)
+        cout << "Nie istnieje taki kontakt." << endl;
+    else
+    {
+        cout << endl;
+        cout << "________________________________________________________________" << endl;
+        cout << "Znaleziono rekordow: " << licznik_spelnienia_warunku << endl;
+    }
+    system("pause");
 }
 
 void wypisz_wszystko (vector <kontakt> lista_kontaktow)
@@ -251,7 +236,7 @@ void wypisz_wszystko (vector <kontakt> lista_kontaktow)
     system ("pause");
 }
 
-void edytuj_kontakt ( vector <kontakt> lista_kontaktow)
+void edytuj_kontakt (vector <kontakt> lista_kontaktow)
 {
     system ("cls");
     int id;
@@ -541,7 +526,61 @@ void wczytaj_kontakty_z_pliku(vector <kontakt> &lista_kontaktow)
     plik_kontaktow.close ();
 }
 
-void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
+void zmien_haslo(vector <uzytkownik> &lista_uzytkownikow, dane_po_logowaniu poprawne_logowanie)
+{
+    system ("cls");
+    string stare_haslo;
+    string nowe_haslo;
+    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    {
+        if (poprawne_logowanie.id_uzytkownika == p -> id)
+        {
+        cout << "Zmiana hasla: " <<endl;
+        cout << "___________________________________________" << endl;
+        cout << "Podaj stare haslo: " << endl;
+        cin.sync();
+        getline (cin, stare_haslo);
+            if (stare_haslo == p -> haslo)
+            {
+                cout << "Podaj nowe haslo: " << endl;
+                cin.sync();
+                getline (cin, nowe_haslo);
+                break;
+            }
+            else
+            {
+                cout << "Podane haslo jest niepoprawne!" << endl;
+                system ("pause");
+                break;
+            }
+        }
+    }
+    fstream plik_uzytkownikow;
+    plik_uzytkownikow.open("plik_uzytkownikow.txt", ios::out);
+
+    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    {
+        if (poprawne_logowanie.id_uzytkownika != p -> id)
+        {
+            plik_uzytkownikow << p -> id << "|";
+            plik_uzytkownikow << p -> nazwa << "|";
+            plik_uzytkownikow << p -> haslo << "|" <<endl;
+        }
+        else
+        {
+            plik_uzytkownikow << p -> id << "|";
+            plik_uzytkownikow << p -> nazwa << "|";
+            plik_uzytkownikow << nowe_haslo << "|" << endl;
+        }
+    }
+    plik_uzytkownikow.close();
+
+    cout << endl << "Poprawnie zmieniono haslo." << endl;
+    cout << "___________________________________________" << endl;
+    system("pause");
+}
+
+void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow, vector <uzytkownik> &lista_uzytkownikow, dane_po_logowaniu poprawne_logowanie)
 {
     while(true)
     {
@@ -553,10 +592,13 @@ void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
         cout << "___________________________________" << endl;
         cout << "Menu glowne: " << endl;
         cout << "1. Dodaj kontakt." << endl;
-        cout << "2. Wyszukaj kontakt. " << endl;
-        cout << "3. Wypisz liste wszystkich kontaktow. " << endl;
-        cout << "4. Edytuj kontakt. " << endl;
-        cout << "5. Usun kontakt. " << endl;
+        cout << "2. Wyszukaj kontakt po imieniu. " << endl;
+        cout << "3. Wyszukaj kontakt po nazwisku. " << endl;
+        cout << "4. Wypisz liste wszystkich kontaktow. " << endl;
+        cout << "5. Edytuj kontakt. " << endl;
+        cout << "6. Usun kontakt. " << endl;
+        cout << "7. Zmien haslo. " << endl;
+        cout << "8. Wyloguj. " << endl;
         cout << "9. Zakoncz program. " << endl;
         cout << endl;
         cout << endl;
@@ -571,15 +613,21 @@ void pokaz_menu_glowne(vector <kontakt> &lista_kontaktow)
         cout << endl;
 
         if (wybor_menu_glownego == 1)
-            dodaj_kontakt(lista_kontaktow);
+            dodaj_kontakt(lista_kontaktow, poprawne_logowanie);
         if (wybor_menu_glownego == 2)
-            wyszukaj_w_kontaktach(lista_kontaktow);
+            wyszukaj_w_kontaktach_po_imieniu(lista_kontaktow);
         if (wybor_menu_glownego == 3)
-            wypisz_wszystko(lista_kontaktow);
+            wyszukaj_w_kontaktach_po_nazwisku(lista_kontaktow);
         if (wybor_menu_glownego == 4)
-            edytuj_kontakt(lista_kontaktow);
+            wypisz_wszystko(lista_kontaktow);
         if (wybor_menu_glownego == 5)
+            edytuj_kontakt(lista_kontaktow);
+        if (wybor_menu_glownego == 6)
             usun_kontakt(lista_kontaktow);
+        if (wybor_menu_glownego == 7)
+            zmien_haslo(lista_uzytkownikow, poprawne_logowanie);
+        if (wybor_menu_glownego == 8)
+            break;
         if (wybor_menu_glownego == 9)
             exit (0);
     }
@@ -702,64 +750,70 @@ void utworz_nowe_konto (vector <uzytkownik> &lista_uzytkownikow)
     system("pause");
 }
 
-void zaloguj_uzytkownika(vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
+void wstrzymaj_logwanie()
 {
-    string nazwa_u;
-    string haslo_u;
-    int liczba_spelnienia_warunku = 0;
     system("cls");
-    cout << "Ekran logowania." << endl;
-    cout << "___________________________________________" << endl;
-    cout << "Podaj nazwe uzytkownika: ";
-    cin.sync();
-    getline(cin, nazwa_u);
-
-    for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+    for (int i = 5; i >= 0; i--)
     {
-        if (p -> nazwa == nazwa_u)
-        {
-            liczba_spelnienia_warunku ++;
-            for (int i = 3; i > 0; i--)
-            {
-                cout << "Pozostalo prob: " << i <<endl;
-                cout << "Podaj haslo: ";
-                cin.sync();
-                getline(cin, haslo_u);
-
-                if (p -> haslo == haslo_u)
-                {
-                    fstream plik_zalogowany_uzytkownik;
-                    plik_zalogowany_uzytkownik.open("zalogowany_uzytkownik.txt",ios::out);
-                    plik_zalogowany_uzytkownik << p -> id;
-                    plik_zalogowany_uzytkownik.close();
-                    pokaz_menu_glowne(lista_kontaktow);
-                }
-                else
-                {
-                    cout << "Niepoprawne haslo.";
-                }
-            }
-            system("cls");
-            for (int i = 5; i >=0; i--)
-            {
-                cout << "Ponowne logowanie mozliwe za: " << i << "s";
-                Sleep(1000);
-                system("cls");
-            }
-            break;
-        }
-    }
-    if (liczba_spelnienia_warunku == 0)
-    {
-        cout << "Nie ma takiego uzytkownika w bazie" << endl;
-        system("pause");
+        cout << "Ponowne logowanie mozliwe za: " << i << "s";
+        Sleep(1000);
+        system("cls");
     }
 }
 
-void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
+dane_po_logowaniu zaloguj_uzytkownika (vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
+{
+    dane_po_logowaniu poprawne_logowanie;
+    int liczba_spelnienia_warunku = 0;
+    while (true)
+    {
+        system("cls");
+        cout << "Ekran logowania." << endl;
+        cout << "___________________________________________" << endl;
+        cout << "Podaj nazwe uzytkownika: ";
+        cin.sync();
+        string nazwa_u;
+        getline(cin, nazwa_u);
+        for (vector<uzytkownik>::iterator p = lista_uzytkownikow.begin(); p != lista_uzytkownikow.end(); p++)
+        {
+            if (p -> nazwa == nazwa_u)
+            {
+                poprawne_logowanie.id_uzytkownika = p -> id;
+                liczba_spelnienia_warunku ++;
+                for (int i = 3; i > 0; i--)
+                {
+                    cout << "Pozostalo prob: " << i <<endl;
+                    cout << "Podaj haslo: ";
+                    cin.sync();
+                    string haslo_u;
+                    getline(cin, haslo_u);
+                    if (p -> haslo == haslo_u)
+                    {
+                        poprawne_logowanie.powodzenie_logowania = true;
+                        break;
+                    }
+                    else if (i == 1)
+                        wstrzymaj_logwanie();
+                    else
+                        cout << "Niepoprawne haslo.";
+                }
+            }
+        }
+        if (liczba_spelnienia_warunku == 0)
+        {
+            cout << "Nie ma takiego uzytkownika w bazie" << endl;
+            system("pause");
+        }
+        if (poprawne_logowanie.powodzenie_logowania == true)
+            break;
+    }
+    return poprawne_logowanie;
+}
+
+dane_po_logowaniu pokaz_menu_logowania (vector <uzytkownik> &lista_uzytkownikow, vector <kontakt> &lista_kontaktow)
 {
     int wybor_menu_logowania;
-
+    dane_po_logowaniu poprawne_logowanie;
     while(true)
     {
         wczytaj_uzytkownikow_z_pliku(lista_uzytkownikow);
@@ -782,29 +836,31 @@ void pokaz_menu_logowania(vector <uzytkownik> &lista_uzytkownikow, vector <konta
         cout << endl;
 
         if (wybor_menu_logowania == 1)
-        {
             utworz_nowe_konto(lista_uzytkownikow);
-        }
         if (wybor_menu_logowania == 2)
         {
-            zaloguj_uzytkownika(lista_uzytkownikow, lista_kontaktow);
+            poprawne_logowanie = zaloguj_uzytkownika(lista_uzytkownikow, lista_kontaktow);
+            break;
         }
         if (wybor_menu_logowania == 9)
-        {
             exit (0);
-        }
     }
+    return poprawne_logowanie;
 }
 
 int main()
 {
-    vector <uzytkownik> lista_uzytkownikow;
-    vector <kontakt> lista_kontaktow;
-    pokaz_menu_logowania(lista_uzytkownikow, lista_kontaktow);
-
+    while(true)
+    {
+        dane_po_logowaniu poprawne_logowanie;
+        vector <uzytkownik> lista_uzytkownikow;
+        vector <kontakt> lista_kontaktow;
+        poprawne_logowanie = pokaz_menu_logowania(lista_uzytkownikow, lista_kontaktow);
+        if (poprawne_logowanie.powodzenie_logowania == true)
+            pokaz_menu_glowne(lista_kontaktow, lista_uzytkownikow, poprawne_logowanie);
+    }
     return 0;
 }
-
 
 /*
     for (vector<kontakt>::iterator p = lista_kontaktow.begin(); p != lista_kontaktow.end(); p++)
